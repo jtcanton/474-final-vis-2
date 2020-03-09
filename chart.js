@@ -4,7 +4,7 @@ const padding = 30;
 const h = 600 - margin;
 const w = 800 - margin;
 
-let stateName = 'California';
+let stateName = 'Washington';
 
 console.log(margin);
 
@@ -34,16 +34,16 @@ d3.csv('./474data_new.csv').then((data) => {
     jsonStr = jsonStr.substr(0, jsonStr.length-1);
     jsonStr += ']';
     
-    // console.log(jsonStr);
-    // console.log(JSON.parse(jsonStr));
+    let dat = JSON.parse(jsonStr);
 
     //scale function
-    let xScale = d3.scaleLinear()
-        .domain([0,5])
-        .range([padding, w]);
+    let xScale = d3.scaleBand()
+        .domain(bracketLabels)
+        .range([padding, w])
+        
 
     let yScale = d3.scaleLinear()
-        .domain([0, 1000000])
+        .domain([0, (yVals[1] *1.25)])
         .range([h - padding, padding]);
 
     //create svg element
@@ -55,26 +55,24 @@ d3.csv('./474data_new.csv').then((data) => {
     // make x axis
     const xAxis = svg.append("g")
         .attr("transform", "translate(20," + (h - padding) + ")")
-        .call(d3.axisBottom(xScale))
+        .call(d3.axisBottom(xScale));
 
     // make y axis
     const yAxis = svg.append("g")
         .attr("transform", "translate(50,0)")
         .call(d3.axisLeft(yScale))
 
-    let dat = JSON.parse(jsonStr);
-
     svg.selectAll("circles")
         .data(dat)
         .enter()
         .append("circle")
         .attr("cx", function (d) {
-            return xScale(d['x']);
+            return xScale(d['bracket']);
         })
         .attr("cy", function (d) {
             return yScale(d['y']);
         })
-        .attr("transform","translate(20,0)")
+        .attr("transform","translate(90,0)")
         .attr("r", 5)
         .attr('fill', 'steelblue')
         .style("stroke", "steelblue")
