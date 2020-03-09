@@ -4,17 +4,13 @@ const padding = 30;
 const h = 600 - margin;
 const w = 800 - margin;
 
+//this can be used to filter
 let stateName = 'Washington';
-
-console.log(margin);
 
 d3.csv('./474data_new.csv').then((data) => {
 
     //filter/format the data for use in graph
     let filtData = data.filter(d => d['Name'] == stateName);
-
-    let jsonStr = '[';
-    let xVals = [0, 1, 2, 3, 4];
 
     let yVals = [filtData[0]['tot_under$25k_no_coverage'],
     filtData[0]['tot_$25k_to_$49999_no_coverage'],
@@ -28,15 +24,17 @@ d3.csv('./474data_new.csv').then((data) => {
         "$75k - $99k",
         "$100k +"];
 
+    //create json data for graph
+    let jsonStr = '[';
     for(let i = 0; i < 5; i++){
-        jsonStr += `{"x":` + xVals[i] + `,"y":` + yVals[i] + `,"bracket":"` + bracketLabels[i] +`"},`;
+        jsonStr += `{"population_count":` + yVals[i] + `,"bracket":"` + bracketLabels[i] +`"},`;
     }
     jsonStr = jsonStr.substr(0, jsonStr.length-1);
     jsonStr += ']';
     
     let dat = JSON.parse(jsonStr);
 
-    //scale function
+    //scale functions
     let xScale = d3.scaleBand()
         .domain(bracketLabels)
         .range([padding, w])
@@ -62,6 +60,7 @@ d3.csv('./474data_new.csv').then((data) => {
         .attr("transform", "translate(50,0)")
         .call(d3.axisLeft(yScale))
 
+    //plot points
     svg.selectAll("circles")
         .data(dat)
         .enter()
@@ -70,7 +69,7 @@ d3.csv('./474data_new.csv').then((data) => {
             return xScale(d['bracket']);
         })
         .attr("cy", function (d) {
-            return yScale(d['y']);
+            return yScale(d['population_count']);
         })
         .attr("transform","translate(90,0)")
         .attr("r", 5)
