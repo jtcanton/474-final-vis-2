@@ -4,26 +4,56 @@ const padding = 30;
 const h = 600 - margin;
 const w = 800 - margin;
 
-//this can be used to filter
-let stateName = 'Washington';
 
 d3.csv('./474data_new.csv').then((data) => {
+
+    //create svg element
+    var svg = d3.select("body")
+        .append("svg")
+        .attr("width", w)
+        .attr("height", h);
+
+    // get the state data
     var stateList = {};
     data.forEach(function(d) {
         stateList[d['Name']] = [];
     });
-
     var states = Object.keys(stateList).sort();
 
+    // create state filter dropdown
     d3.select('#filter')
     .append('select')
+    .attr('id', 'dropdown')
     .selectAll('option')
     .data(states)
     .enter()
     .append('option')
+    .attr('id', 'option')
     .attr("value", function (d) { return d; })
     .html(function (d) { return d })
 
+    // set Alabama for the default state
+    let stateName = 'Alabama';
+    let dropdown, userSelect;
+
+    // user interaction with state dropdown
+    d3.select('#filter').on("change", function (d) {
+        // get user's inputs
+        dropdown = document.getElementById("dropdown");
+        userSelect = dropdown.options[dropdown.selectedIndex].value;
+
+        // update chosen state
+        stateName = userSelect
+
+        // delete old plot and update new plot
+        d3.selectAll("svg > *").remove();
+        plotData(data, svg, stateName)
+    });
+
+    plotData(data, svg, stateName)
+});
+
+function plotData (data, svg, stateName) {
     //filter/format the data for use in graph
     let filtData = data.filter(d => d['Name'] == stateName);
 
@@ -59,12 +89,6 @@ d3.csv('./474data_new.csv').then((data) => {
         .domain([0, (yVals[1] * 1.25)])
         .range([h - padding, padding]);
 
-    //create svg element
-    var svg = d3.select("body")
-        .append("svg")
-        .attr("width", w)
-        .attr("height", h);
-
     // make x axis
     const xAxis = svg.append("g")
         .attr("transform", "translate(20," + (h - padding) + ")")
@@ -90,5 +114,4 @@ d3.csv('./474data_new.csv').then((data) => {
         .attr("r", 5)
         .attr('fill', 'steelblue')
         .style("stroke", "steelblue")
-
-});
+}
