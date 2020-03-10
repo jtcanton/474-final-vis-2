@@ -8,6 +8,21 @@ const w = 800 - margin;
 let stateName = 'Washington';
 
 d3.csv('./474data_new.csv').then((data) => {
+    var stateList = {};
+    data.forEach(function(d) {
+        stateList[d['Name']] = [];
+    });
+
+    var states = Object.keys(stateList).sort();
+
+    d3.select('#filter')
+    .append('select')
+    .selectAll('option')
+    .data(states)
+    .enter()
+    .append('option')
+    .attr("value", function (d) { return d; })
+    .html(function (d) { return d })
 
     //filter/format the data for use in graph
     let filtData = data.filter(d => d['Name'] == stateName);
@@ -26,22 +41,22 @@ d3.csv('./474data_new.csv').then((data) => {
 
     //create json data for graph
     let jsonStr = '[';
-    for(let i = 0; i < 5; i++){
-        jsonStr += `{"population_count":` + yVals[i] + `,"bracket":"` + bracketLabels[i] +`"},`;
+    for (let i = 0; i < 5; i++) {
+        jsonStr += `{"population_count":` + yVals[i] + `,"bracket":"` + bracketLabels[i] + `"},`;
     }
-    jsonStr = jsonStr.substr(0, jsonStr.length-1);
+    jsonStr = jsonStr.substr(0, jsonStr.length - 1);
     jsonStr += ']';
-    
+
     let dat = JSON.parse(jsonStr);
 
     //scale functions
     let xScale = d3.scaleBand()
         .domain(bracketLabels)
         .range([padding, w])
-        
+
 
     let yScale = d3.scaleLinear()
-        .domain([0, (yVals[1] *1.25)])
+        .domain([0, (yVals[1] * 1.25)])
         .range([h - padding, padding]);
 
     //create svg element
@@ -71,7 +86,7 @@ d3.csv('./474data_new.csv').then((data) => {
         .attr("cy", function (d) {
             return yScale(d['population_count']);
         })
-        .attr("transform","translate(90,0)")
+        .attr("transform", "translate(90,0)")
         .attr("r", 5)
         .attr('fill', 'steelblue')
         .style("stroke", "steelblue")
