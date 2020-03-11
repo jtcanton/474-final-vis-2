@@ -86,7 +86,7 @@ function plotData (data, svg, stateName) {
 
 
     let yScale = d3.scaleLinear()
-        .domain([0, (yVals[1] * 1.25)])
+        .domain([0, (Math.max(...yVals) * 1.25)])
         .range([h - padding, padding]);
 
     // make x axis
